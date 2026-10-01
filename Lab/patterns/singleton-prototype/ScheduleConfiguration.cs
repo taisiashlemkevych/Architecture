@@ -1,4 +1,4 @@
-namespace ScheduleSolid.Patterns;
+namespace ScheduleSolid.Patterns.singletonPrototype;
 
 public sealed class ScheduleConfiguration
 {

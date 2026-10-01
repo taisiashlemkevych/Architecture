@@ -1,6 +1,6 @@
 using ScheduleSolid.Models;
 
-namespace ScheduleSolid.Patterns;
+namespace ScheduleSolid.Patterns.singletonPrototype;
 
 public class LessonPrototype
 {

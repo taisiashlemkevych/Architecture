@@ -2,6 +2,10 @@ using ScheduleSolid.Interfaces;
 using ScheduleSolid.Models;
 using ScheduleSolid.Services;
 using ScheduleSolid.Patterns;
+using ScheduleSolid.Patterns.factory;
+using ScheduleSolid.Patterns.abstractFactory;
+using ScheduleSolid.Patterns.singletonPrototype;
+
 
 namespace ScheduleSolid;
 
@@ -11,6 +15,21 @@ public class Program
     {
         Console.OutputEncoding =
             System.Text.Encoding.UTF8;
+        Console.WriteLine("=================================");
+        Console.WriteLine("ЛАБОРАТОРНА РОБОТА №4: Factory Method & Abstract Factory");
+        Console.WriteLine("=================================\n");
+
+        Console.WriteLine("--- Factory Method ---");
+        NotificationCreator creator = new EmailNotificationCreator();
+        creator.NotifyUser("Увага! Зміни в розкладі на завтра.");
+
+        Console.WriteLine("\n--- Abstract Factory ---");
+        IUniversityInfrastructureFactory factory = new OnlineInfrastructureFactory();
+        var notification = factory.CreateNotification();
+        var report = factory.CreateReport();
+        
+        notification.Send("Запрошення на онлайн-лекцію");
+        report.GenerateReport();
 
         Console.WriteLine("=================================");
         Console.WriteLine("ЛАБОРАТОРНА РОБОТА №3");
