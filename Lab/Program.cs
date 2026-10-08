@@ -1,120 +1,58 @@
-using ScheduleSolid.Interfaces;
 using ScheduleSolid.Models;
-using ScheduleSolid.Services;
-using ScheduleSolid.Patterns;
-using ScheduleSolid.Patterns.factory;
-using ScheduleSolid.Patterns.abstractFactory;
-using ScheduleSolid.Patterns.singletonPrototype;
-
-
+using ScheduleSolid.Patterns.Builder;
+using ScheduleSolid.Patterns.ObjectPool;
 namespace ScheduleSolid;
 
 public class Program
 {
-    public static void Main()
-    {
-        Console.OutputEncoding =
-            System.Text.Encoding.UTF8;
-        Console.WriteLine("=================================");
-        Console.WriteLine("ЛАБОРАТОРНА РОБОТА №4: Factory Method & Abstract Factory");
-        Console.WriteLine("=================================\n");
+public static void Main()
+{
+Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-        Console.WriteLine("--- Factory Method ---");
-        NotificationCreator creator = new EmailNotificationCreator();
-        creator.NotifyUser("Увага! Зміни в розкладі на завтра.");
+    Console.WriteLine("========== BUILDER ==========");
 
-        Console.WriteLine("\n--- Abstract Factory ---");
-        IUniversityInfrastructureFactory factory = new OnlineInfrastructureFactory();
-        var notification = factory.CreateNotification();
-        var report = factory.CreateReport();
-        
-        notification.Send("Запрошення на онлайн-лекцію");
-        report.GenerateReport();
+    Teacher teacher = new(1, "Іваненко Іван");
+    StudentGroup group = new(1, "КН-21");
+    Classroom classroom = new(101, 30);
 
-        Console.WriteLine("=================================");
-        Console.WriteLine("ЛАБОРАТОРНА РОБОТА №3");
-        Console.WriteLine("Singleton + Prototype");
-        Console.WriteLine("Тема: Розклад навчальних занять");
-        Console.WriteLine("=================================");
+    Lesson lesson = new LessonBuilder()
+        .SetId(1)
+        .SetSubject("Програмування")
+        .SetDate("08.10.2026")
+        .SetTime("10:00")
+        .SetTeacher(teacher)
+        .SetGroup(group)
+        .SetClassroom(classroom)
+        .Build();
 
-        Console.WriteLine("\n========== SINGLETON ==========");
+    lesson.DisplayInfo();
 
-        ScheduleConfiguration config1 =
-            ScheduleConfiguration.Instance;
+    Console.WriteLine("\n========== OBJECT POOL ==========");
 
-        ScheduleConfiguration config2 =
-            ScheduleConfiguration.Instance;
+    LessonObjectPool pool = new();
 
-        config1.DisplayConfiguration();
+    Lesson first = pool.GetLesson();
 
-        Console.WriteLine(
-            $"\nconfig1 == config2: {config1 == config2}");
+    first.Id = 2;
+    first.Subject = "Бази даних";
+    first.Date = "08.10.2026";
+    first.Time = "12:00";
+    first.Teacher = new Teacher(2, "Петренко Олена");
+    first.Group = new StudentGroup(2, "КН-22");
+    first.Classroom = new Classroom(202, 25);
 
-        config1.UniversityName =
-            "Національний університет";
+    first.DisplayInfo();
 
-        Console.WriteLine(
-            $"config2 бачить: {config2.UniversityName}");
+    pool.ReturnLesson(first);
 
+    Lesson second = pool.GetLesson();
 
-        Console.WriteLine("\n========== PROTOTYPE ==========");
+    Console.WriteLine(
+        $"Це той самий об'єкт: {ReferenceEquals(first, second)}");
 
-        Teacher teacher = new Teacher(
-            1,
-            "Іваненко Іван Іванович");
+    Console.WriteLine(
+        $"Предмет після очищення: {second.Subject}");
 
-        StudentGroup group = new StudentGroup(
-            1,
-            "КН-21");
-
-        Classroom classroom = new Classroom(
-            101,
-            30);
-
-        Lesson originalLesson = new Lesson(
-            1,
-            "Програмування",
-            "05.10.2026",
-            "10:00",
-            teacher,
-            group,
-            classroom);
-
-        Console.WriteLine("\nОригінальне заняття:");
-        originalLesson.DisplayInfo();
-
-        LessonPrototype prototype =
-            new LessonPrototype(originalLesson);
-
-        Lesson clonedLesson =
-            prototype.Clone();
-
-        clonedLesson.Id = 2;
-        clonedLesson.Group.Name = "КН-22";
-        clonedLesson.Date = "06.10.2026";
-
-        Console.WriteLine("\nСкопійоване заняття:");
-        clonedLesson.DisplayInfo();
-
-        Console.WriteLine(
-            "\noriginalLesson == clonedLesson: " +
-            $"{ReferenceEquals(originalLesson, clonedLesson)}");
-
-        Console.WriteLine(
-            "Prototype створив окремий об'єкт.");
-
-
-        Console.WriteLine("\n========== РОЗКЛАД ==========");
-
-        Schedule schedule = new Schedule();
-
-        schedule.AddLesson(originalLesson);
-        schedule.AddLesson(clonedLesson);
-
-        schedule.DisplayLessons();
-
-        Console.WriteLine("\n=================================");
-        Console.WriteLine("Демонстрацію завершено.");
-        Console.WriteLine("=================================");
-    }
+    Console.WriteLine("\nДемонстрацію завершено.");
+}
 }
