@@ -1,12 +1,10 @@
 namespace ScheduleSolid.Patterns.Adapter;
 
-// Інтерфейс, через який програма отримує розклад.
 public interface IScheduleReader
 {
     string ReadSchedule();
 }
 
-// Імітація старого сервісу з несумісним методом.
 public class ExternalScheduleService
 {
     public string GetScheduleData()
@@ -15,7 +13,6 @@ public class ExternalScheduleService
     }
 }
 
-// Адаптер узгоджує старий сервіс із потрібним інтерфейсом.
 public class ScheduleAdapter : IScheduleReader
 {
     private readonly ExternalScheduleService service;
@@ -25,7 +22,6 @@ public class ScheduleAdapter : IScheduleReader
         this.service = service;
     }
 
-    // Викликаємо метод старого сервісу через потрібний інтерфейс.
     public string ReadSchedule()
     {
         return service.GetScheduleData();
