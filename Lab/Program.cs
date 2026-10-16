@@ -1,58 +1,33 @@
-using ScheduleSolid.Models;
-using ScheduleSolid.Patterns.Builder;
-using ScheduleSolid.Patterns.ObjectPool;
+using ScheduleSolid.Patterns.Adapter;
+using ScheduleSolid.Patterns.Bridge;
+
 namespace ScheduleSolid;
 
 public class Program
 {
-public static void Main()
-{
-Console.OutputEncoding = System.Text.Encoding.UTF8;
+    public static void Main()
+    {
+        Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-    Console.WriteLine("========== BUILDER ==========");
+        Console.WriteLine("========== ADAPTER ==========");
 
-    Teacher teacher = new(1, "Іваненко Іван");
-    StudentGroup group = new(1, "КН-21");
-    Classroom classroom = new(101, 30);
+        ExternalScheduleService externalService = new();
 
-    Lesson lesson = new LessonBuilder()
-        .SetId(1)
-        .SetSubject("Програмування")
-        .SetDate("08.10.2026")
-        .SetTime("10:00")
-        .SetTeacher(teacher)
-        .SetGroup(group)
-        .SetClassroom(classroom)
-        .Build();
+        IScheduleReader reader = new ScheduleAdapter(externalService);
 
-    lesson.DisplayInfo();
+        string schedule = reader.ReadSchedule();
+        Console.WriteLine(schedule);
 
-    Console.WriteLine("\n========== OBJECT POOL ==========");
+        Console.WriteLine("\n========== BRIDGE ==========");
 
-    LessonObjectPool pool = new();
+        ScheduleReport consoleReport =
+            new(new ConsoleScheduleOutput());
 
-    Lesson first = pool.GetLesson();
+        consoleReport.Generate(schedule);
 
-    first.Id = 2;
-    first.Subject = "Бази даних";
-    first.Date = "08.10.2026";
-    first.Time = "12:00";
-    first.Teacher = new Teacher(2, "Петренко Олена");
-    first.Group = new StudentGroup(2, "КН-22");
-    first.Classroom = new Classroom(202, 25);
+        ScheduleReport fileReport =
+            new(new TextFileScheduleOutput());
 
-    first.DisplayInfo();
-
-    pool.ReturnLesson(first);
-
-    Lesson second = pool.GetLesson();
-
-    Console.WriteLine(
-        $"Це той самий об'єкт: {ReferenceEquals(first, second)}");
-
-    Console.WriteLine(
-        $"Предмет після очищення: {second.Subject}");
-
-    Console.WriteLine("\nДемонстрацію завершено.");
-}
+        fileReport.Generate(schedule);
+    }
 }
