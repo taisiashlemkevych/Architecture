@@ -2,6 +2,8 @@ using ScheduleSolid.Patterns.Adapter;
 using ScheduleSolid.Patterns.Bridge;
 using ScheduleSolid.Patterns.Composite;
 using ScheduleSolid.Patterns.Flyweight;
+using ScheduleSolid.Patterns.Decorator;
+using ScheduleSolid.Patterns.Proxy;
 
 namespace ScheduleSolid;
 
@@ -73,5 +75,29 @@ public class Program
             $"{ReferenceEquals(room1, room2)}");
 
         Console.WriteLine("\nДемонстрацію завершено.");
+
+        Console.WriteLine("\n========== DECORATOR ==========");
+
+        IScheduleInfo scheduleInfo = new BasicSchedule();
+
+        scheduleInfo = new TeacherScheduleDecorator(scheduleInfo);
+
+        scheduleInfo = new ClassroomScheduleDecorator(scheduleInfo);
+
+        Console.WriteLine(scheduleInfo.GetInfo());
+
+        Console.WriteLine("\n========== PROXY ==========");
+
+        IScheduleService realService = new RealScheduleService();
+
+        IScheduleService allowedProxy =
+        new ScheduleProxy(realService, true);
+
+        Console.WriteLine(allowedProxy.GetSchedule());
+
+        IScheduleService deniedProxy =
+        new ScheduleProxy(realService, false);
+
+        Console.WriteLine(deniedProxy.GetSchedule());
     }
 }
