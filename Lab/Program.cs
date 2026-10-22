@@ -4,6 +4,8 @@ using ScheduleSolid.Patterns.Composite;
 using ScheduleSolid.Patterns.Flyweight;
 using ScheduleSolid.Patterns.Decorator;
 using ScheduleSolid.Patterns.Proxy;
+using ScheduleSolid.Patterns.ChainOfResponsibility;
+using ScheduleSolid.Patterns.Command;
 
 namespace ScheduleSolid;
 
@@ -99,5 +101,30 @@ public class Program
         new ScheduleProxy(realService, false);
 
         Console.WriteLine(deniedProxy.GetSchedule());
+
+        Console.WriteLine("\n========== CHAIN OF RESPONSIBILITY ==========");
+
+        ScheduleHandler subjectCheck = new SubjectHandler();
+        subjectCheck.SetNext(new ApprovalHandler());
+
+        subjectCheck.Handle("Програмування");
+
+        subjectCheck.Handle("Заборонено");
+
+        Console.WriteLine("\n========== COMMAND ==========");
+
+        ScheduleManager manager = new();
+
+        IScheduleCommand addCommand =
+        new AddLessonCommand(manager, "Програмування");
+
+        IScheduleCommand removeCommand =
+        new RemoveLessonCommand(manager, "Програмування");
+
+        addCommand.Execute();
+        manager.ShowLessons();
+
+        removeCommand.Execute();
+        manager.ShowLessons();
     }
 }
