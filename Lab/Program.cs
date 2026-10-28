@@ -12,6 +12,8 @@ using ScheduleSolid.Patterns.Memento;
 using ScheduleSolid.Patterns.Observer;
 using ScheduleSolid.Patterns.State;
 using ScheduleSolid.Patterns.Strategy;
+using ScheduleSolid.Patterns.Template;
+using ScheduleSolid.Patterns.Visitor;
 
 namespace ScheduleSolid;
 
@@ -168,5 +170,39 @@ public class Program
         {
             Console.WriteLine(strategyLesson);
         }
+
+        Console.WriteLine("\n========== TEMPLATE METHOD ==========");
+        ScheduleReportTemplate textReport = new TextScheduleReport();
+        textReport.GenerateReport();
+
+        Console.WriteLine();
+
+        ScheduleReportTemplate detailedReport = new DetailedScheduleReport();
+        detailedReport.GenerateReport();
+
+        Console.WriteLine("\n========== VISITOR ==========");
+        List<IScheduleElement> scheduleElements = new()
+        {
+            new Lecture("Програмування", "10:00"),
+            new Practice("Бази даних", "12:00"),
+            new Lecture("Математика", "14:00")
+        };
+
+        ScheduleInfoVisitor infoVisitor = new();
+
+        foreach (IScheduleElement element in scheduleElements)
+        {
+            element.Accept(infoVisitor);
+        }
+
+        ScheduleCountVisitor countVisitor = new();
+
+        foreach (IScheduleElement element in scheduleElements)
+        {
+            element.Accept(countVisitor);
+        }
+
+        Console.WriteLine($"Загальна кількість занять: {countVisitor.Count}");
+
     }
 }
