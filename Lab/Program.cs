@@ -6,6 +6,8 @@ using ScheduleSolid.Patterns.Decorator;
 using ScheduleSolid.Patterns.Proxy;
 using ScheduleSolid.Patterns.ChainOfResponsibility;
 using ScheduleSolid.Patterns.Command;
+using ScheduleSolid.Patterns.Iterator;
+using ScheduleSolid.Patterns.Mediator;
 
 namespace ScheduleSolid;
 
@@ -16,115 +18,97 @@ public class Program
         Console.OutputEncoding = System.Text.Encoding.UTF8;
 
         Console.WriteLine("========== ADAPTER ==========");
-
         ExternalScheduleService externalService = new();
-
         IScheduleReader reader = new ScheduleAdapter(externalService);
-
         string schedule = reader.ReadSchedule();
         Console.WriteLine(schedule);
 
-
         Console.WriteLine("\n========== BRIDGE ==========");
-
-        ScheduleReport consoleReport =
-            new(new ConsoleScheduleOutput());
-
+        ScheduleReport consoleReport = new(new ConsoleScheduleOutput());
         consoleReport.Generate(schedule);
 
-        ScheduleReport fileReport =
-            new(new TextFileScheduleOutput());
-
+        ScheduleReport fileReport = new(new TextFileScheduleOutput());
         fileReport.Generate(schedule);
 
-
         Console.WriteLine("\n========== COMPOSITE ==========");
-
         ScheduleGroup scheduleGroup = new("Розклад групи КН-21");
+        scheduleGroup.Add(new ScheduleLesson("Програмування", "10:00"));
+        scheduleGroup.Add(new ScheduleLesson("Бази даних", "12:00"));
 
-        scheduleGroup.Add(
-            new ScheduleLesson("Програмування", "10:00"));
-
-        scheduleGroup.Add(
-            new ScheduleLesson("Бази даних", "12:00"));
-
-        ScheduleGroup afternoonGroup =
-            new("Друга частина розкладу");
-
-        afternoonGroup.Add(
-            new ScheduleLesson("Математика", "14:00"));
-
+        ScheduleGroup afternoonGroup = new("Друга частина розкладу");
+        afternoonGroup.Add(new ScheduleLesson("Математика", "14:00"));
         scheduleGroup.Add(afternoonGroup);
 
         scheduleGroup.Display();
 
-
         Console.WriteLine("\n========== FLYWEIGHT ==========");
-
         ClassroomFactory classroomFactory = new();
-
-        ClassroomFlyweight room1 =
-            classroomFactory.GetClassroom(101, 30);
-
-        ClassroomFlyweight room2 =
-            classroomFactory.GetClassroom(101, 30);
+        ClassroomFlyweight room1 = classroomFactory.GetClassroom(101, 30);
+        ClassroomFlyweight room2 = classroomFactory.GetClassroom(101, 30);
 
         room1.Display("Програмування", "10:00");
         room2.Display("Бази даних", "12:00");
 
-        Console.WriteLine(
-            $"Аудиторія повторно використана: " +
-            $"{ReferenceEquals(room1, room2)}");
-
-        Console.WriteLine("\nДемонстрацію завершено.");
+        Console.WriteLine($"Аудиторія повторно використана: {ReferenceEquals(room1, room2)}");
 
         Console.WriteLine("\n========== DECORATOR ==========");
-
         IScheduleInfo scheduleInfo = new BasicSchedule();
-
         scheduleInfo = new TeacherScheduleDecorator(scheduleInfo);
-
         scheduleInfo = new ClassroomScheduleDecorator(scheduleInfo);
-
         Console.WriteLine(scheduleInfo.GetInfo());
 
         Console.WriteLine("\n========== PROXY ==========");
-
         IScheduleService realService = new RealScheduleService();
-
-        IScheduleService allowedProxy =
-        new ScheduleProxy(realService, true);
-
+        IScheduleService allowedProxy = new ScheduleProxy(realService, true);
         Console.WriteLine(allowedProxy.GetSchedule());
 
-        IScheduleService deniedProxy =
-        new ScheduleProxy(realService, false);
-
+        IScheduleService deniedProxy = new ScheduleProxy(realService, false);
         Console.WriteLine(deniedProxy.GetSchedule());
 
         Console.WriteLine("\n========== CHAIN OF RESPONSIBILITY ==========");
-
         ScheduleHandler subjectCheck = new SubjectHandler();
         subjectCheck.SetNext(new ApprovalHandler());
 
         subjectCheck.Handle("Програмування");
-
         subjectCheck.Handle("Заборонено");
 
         Console.WriteLine("\n========== COMMAND ==========");
-
         ScheduleManager manager = new();
-
-        IScheduleCommand addCommand =
-        new AddLessonCommand(manager, "Програмування");
-
-        IScheduleCommand removeCommand =
-        new RemoveLessonCommand(manager, "Програмування");
+        IScheduleCommand addCommand = new AddLessonCommand(manager, "Програмування");
+        IScheduleCommand removeCommand = new RemoveLessonCommand(manager, "Програмування");
 
         addCommand.Execute();
         manager.ShowLessons();
 
         removeCommand.Execute();
         manager.ShowLessons();
+
+        Console.WriteLine("\n========== ITERATOR ==========");
+        Schedule scheduleObj = new();
+
+        scheduleObj.AddLesson("Програмування");
+        scheduleObj.AddLesson("Бази даних");
+        scheduleObj.AddLesson("Математика");
+
+        ScheduleIterator iterator = scheduleObj.CreateIterator();
+
+        while (iterator.HasNext())
+        {
+            string lesson = iterator.Next();
+            Console.WriteLine(lesson);
+        }
+
+        Console.WriteLine("\n========== MEDIATOR ==========");
+        ScheduleMediator mediator = new();
+        Student student1 = new("Олена");
+        Student student2 = new("Андрій");
+
+        mediator.RegisterStudent(student1);
+        mediator.RegisterStudent(student2);
+
+        Teacher teacher = new(mediator);
+        teacher.ChangeSchedule("Заняття перенесено на 12:00.");
+
+        Console.WriteLine("\nДемонстрацію завершено.");
     }
 }
