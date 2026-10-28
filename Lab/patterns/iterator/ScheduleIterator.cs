@@ -3,7 +3,6 @@ namespace ScheduleSolid.Patterns.Iterator;
 public class ScheduleIterator
 {
     private readonly List<string> lessons;
-
     private int position = 0;
 
     public ScheduleIterator(List<string> lessons)
@@ -27,7 +26,7 @@ public class ScheduleIterator
     }
 }
 
-public class Schedule
+public class IteratorSchedule
 {
     private readonly List<string> lessons = new();
 

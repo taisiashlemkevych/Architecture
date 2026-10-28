@@ -7,29 +7,24 @@ public interface IScheduleMediator
 
 public class ScheduleMediator : IScheduleMediator
 {
-    private readonly List<Student> students = new();
+    private readonly List<MediatorStudent> students = new();
 
-    public void RegisterStudent(Student student)
+    public void RegisterStudent(MediatorStudent student)
     {
         students.Add(student);
     }
 
     public void Notify(object sender, string message)
     {
-  
-        foreach (Student student in students)
+        foreach (MediatorStudent student in students)
         {
-            if (!ReferenceEquals(sender, student))
-            {
-                student.ReceiveMessage(message);
-            }
+            student.ReceiveMessage(message);
         }
     }
 }
 
 public class Teacher
 {
-
     private readonly IScheduleMediator mediator;
 
     public Teacher(IScheduleMediator mediator)
@@ -40,16 +35,15 @@ public class Teacher
     public void ChangeSchedule(string message)
     {
         Console.WriteLine($"Викладач повідомляє: {message}");
-
         mediator.Notify(this, message);
     }
 }
 
-public class Student
+public class MediatorStudent
 {
     public string Name { get; }
 
-    public Student(string name)
+    public MediatorStudent(string name)
     {
         Name = name;
     }
